@@ -268,7 +268,7 @@ export function formatSongChild(s: SongRow) {
     track: s.track_number,
     year: s.year,
     genre: s.genre,
-    coverArt: s.cover_art_r2_key ? `al-${s.album_id}` : (s.album_id ? `al-${s.album_id}` : undefined),
+    coverArt: s.cover_art_r2_key ? `al-${s.album_id}` : undefined,
     size: s.file_size,
     contentType: s.content_type,
     suffix: s.suffix,
