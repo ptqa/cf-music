@@ -100,6 +100,8 @@ async function routeRequest(endpoint: string, ctx: AuthenticatedRequest, env: En
     case 'getMusicDirectory':
     case 'getArtists':
     case 'getArtist':
+    case 'getArtistInfo':
+    case 'getArtistInfo2':
     case 'getAlbum':
     case 'getSong':
     case 'getGenres':

@@ -32,6 +32,10 @@ export async function handleBrowsing(endpoint: string, ctx: AuthenticatedRequest
     case 'getGenres':
       return handleGetGenres(ctx, env);
 
+    case 'getArtistInfo':
+    case 'getArtistInfo2':
+      return handleGetArtistInfo(ctx, env);
+
     default:
       return subsonicError(ctx.format, 0, `Unknown browsing endpoint: ${endpoint}`);
   }
@@ -180,6 +184,23 @@ async function handleGetSong(ctx: AuthenticatedRequest, env: Env): Promise<Respo
   });
 }
 
+async function handleGetArtistInfo(ctx: AuthenticatedRequest, env: Env): Promise<Response> {
+  const id = ctx.params.id;
+  if (!id) return subsonicError(ctx.format, 10, 'Missing required parameter: id');
+
+  const artist = await queries.getArtist(env.DB, id);
+  if (!artist) return subsonicError(ctx.format, 70, 'Artist not found');
+
+  return subsonicResponse(ctx.format, {
+    artistInfo: {
+      biography: '',
+      musicBrainzId: artist.musicbrainz_id || '',
+      lastFmUrl: '',
+      similarArtist: [],
+    },
+  });
+}
+
 async function handleGetGenres(ctx: AuthenticatedRequest, env: Env): Promise<Response> {
   const genres = await queries.getGenres(env.DB);
   return subsonicResponse(ctx.format, {
@@ -265,25 +286,28 @@ export function formatSongChild(s: SongRow) {
     title: s.title,
     album: s.album_name,
     artist: s.artist_name,
-    track: s.track_number,
-    year: s.year,
-    genre: s.genre,
-    coverArt: s.cover_art_r2_key ? `al-${s.album_id}` : undefined,
-    size: s.file_size,
+    track: s.track_number ?? 0,
+    year: s.year ?? 0,
+    genre: s.genre ?? '',
+    coverArt: `al-${s.album_id}`,
+    size: s.file_size ?? 0,
     contentType: s.content_type,
     suffix: s.suffix,
-    duration: s.duration,
-    bitRate: s.bit_rate,
+    duration: s.duration ?? 0,
+    bitRate: s.bit_rate ?? 0,
     bitDepth: s.bit_depth,
-    samplingRate: s.sampling_rate,
-    channelCount: s.channel_count,
+    samplingRate: s.sampling_rate ?? 0,
+    channelCount: s.channel_count ?? 2,
     path: s.path,
     albumId: s.album_id,
     artistId: s.artist_id,
     type: 'music',
+    mediaType: 'song',
     isVideo: false,
-    discNumber: s.disc_number,
+    discNumber: s.disc_number ?? 0,
     created: toISO(s.created_at),
+    bpm: 0,
+    playCount: 0,
   };
 }
 

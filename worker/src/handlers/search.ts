@@ -1,11 +1,11 @@
 import { type Env, type AuthenticatedRequest } from '../types';
-import { subsonicResponse, subsonicError, toISO } from '../response';
+import { subsonicResponse, toISO } from '../response';
 import { formatSongChild } from './browsing';
 import * as queries from '../db/queries';
 
 export async function handleSearch(endpoint: string, ctx: AuthenticatedRequest, env: Env): Promise<Response> {
-  const query = ctx.params.query;
-  if (!query) return subsonicError(ctx.format, 10, 'Missing required parameter: query');
+  // Allow empty query — Chora uses search3 with query="" to list all songs
+  const query = ctx.params.query ?? '';
 
   const artistCount = parseInt(ctx.params.artistCount || '20');
   const artistOffset = parseInt(ctx.params.artistOffset || '0');
