@@ -43,29 +43,33 @@ export function subsonicError(format: 'json' | 'xml', code: number, message: str
 }
 
 function jsonResponse(envelope: Record<string, unknown>): Response {
-  const body = JSON.stringify({ 'subsonic-response': collapseArrays(envelope) });
+  const body = JSON.stringify({ 'subsonic-response': cleanJson(envelope) });
   return new Response(body, {
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
   });
 }
 
 /**
- * Collapse single-element arrays to bare objects and remove empty arrays.
- * This is required by the Subsonic JSON API spec.
+ * Clean JSON output for Subsonic responses.
+ * Strips `_text` keys (XML-only) and removes null/undefined values.
+ *
+ * NOTE: The original Subsonic spec collapses single-element arrays to bare
+ * objects and omits empty arrays. However, most real clients (Sublime Music,
+ * DSub, Symphonium) cannot handle this and expect stable arrays. Navidrome
+ * (the most popular Subsonic server) also does NOT collapse arrays.
+ * So we keep arrays as-is for maximum client compatibility.
  */
-function collapseArrays(obj: unknown): unknown {
+function cleanJson(obj: unknown): unknown {
   if (Array.isArray(obj)) {
-    if (obj.length === 0) return undefined;
-    const mapped = obj.map(collapseArrays);
-    if (mapped.length === 1) return mapped[0];
-    return mapped;
+    return obj.map(cleanJson);
   }
   if (obj !== null && typeof obj === 'object') {
     const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
-      const collapsed = collapseArrays(value);
-      if (collapsed !== undefined) {
-        result[key] = collapsed;
+      if (key === '_text') continue; // XML-only field
+      const cleaned = cleanJson(value);
+      if (cleaned !== undefined) {
+        result[key] = cleaned;
       }
     }
     return result;
@@ -94,6 +98,7 @@ function toXml(tag: string, obj: unknown, extraAttrs?: Record<string, string>): 
   const record = obj as Record<string, unknown>;
   const attrs: string[] = [];
   const children: string[] = [];
+  let textContent: string | null = null;
 
   // Add extra attributes (like xmlns)
   if (extraAttrs) {
@@ -102,10 +107,20 @@ function toXml(tag: string, obj: unknown, extraAttrs?: Record<string, string>): 
     }
   }
 
+  // If _text is present, skip 'value' key in XML (it's only for JSON)
+  const hasTextContent = '_text' in record;
+
   for (const [key, value] of Object.entries(record)) {
     if (value === null || value === undefined) continue;
 
-    if (Array.isArray(value)) {
+    // Special key: _text becomes the text content of the element
+    // Used for elements like <genre songCount="1">Rock</genre>
+    if (key === '_text') {
+      textContent = String(value);
+    } else if (key === 'value' && hasTextContent) {
+      // Skip 'value' attribute in XML when _text provides the text content
+      continue;
+    } else if (Array.isArray(value)) {
       // Arrays become repeated child elements
       for (const item of value) {
         children.push(toXml(key, item));
@@ -119,6 +134,10 @@ function toXml(tag: string, obj: unknown, extraAttrs?: Record<string, string>): 
   }
 
   const attrStr = attrs.length > 0 ? ' ' + attrs.join(' ') : '';
+
+  if (textContent !== null) {
+    return `<${tag}${attrStr}>${escapeXml(textContent)}</${tag}>`;
+  }
 
   if (children.length === 0) {
     return `<${tag}${attrStr}/>`;

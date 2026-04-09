@@ -184,11 +184,7 @@ async function handleGetGenres(ctx: AuthenticatedRequest, env: Env): Promise<Res
   const genres = await queries.getGenres(env.DB);
   return subsonicResponse(ctx.format, {
     genres: {
-      genre: genres.map(g => ({
-        songCount: g.song_count,
-        albumCount: g.album_count,
-        value: g.name,
-      })),
+      genre: genres.map(g => formatGenre(g)),
     },
   });
 }
@@ -249,6 +245,15 @@ function formatAlbum(a: { id: string; name: string; artist_name: string; artist_
     year: a.year,
     genre: a.genre,
     created: a.created_at,
+  };
+}
+
+function formatGenre(g: { name: string; song_count: number; album_count: number }) {
+  return {
+    songCount: g.song_count,
+    albumCount: g.album_count,
+    value: g.name,      // JSON: genre name as "value" field
+    _text: g.name,      // XML: genre name as text content between tags
   };
 }
 
