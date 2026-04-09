@@ -5,6 +5,7 @@ dist/
 # Cloudflare
 .wrangler/
 .dev.vars
+worker/wrangler.toml
 
 # Credentials / config with secrets
 music-cli.toml
