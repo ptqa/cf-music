@@ -1,0 +1,12 @@
+[cloudflare]
+account_id = "your-account-id"
+api_token = "your-api-token"
+
+[r2]
+bucket_name = "music"
+endpoint = "https://YOUR_ACCOUNT_ID.r2.cloudflarestorage.com"
+access_key_id = "your-r2-access-key"
+secret_access_key = "your-r2-secret-key"
+
+[d1]
+database_id = "your-d1-database-id"

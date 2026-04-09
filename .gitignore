@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+dist/
+
+# Cloudflare
+.wrangler/
+.dev.vars
+
+# Credentials / config with secrets
+music-cli.toml
+.env
+.env.*
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

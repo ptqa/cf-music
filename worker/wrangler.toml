@@ -1,0 +1,16 @@
+name = "music-server"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[vars]
+SERVER_NAME = "CloudflareMusic"
+SERVER_VERSION = "0.1.0"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "music-metadata"
+database_id = "YOUR_D1_DATABASE_ID"  # Run: wrangler d1 create music-metadata
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "music"  # Run: wrangler r2 bucket create music
