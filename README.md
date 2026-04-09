@@ -33,14 +33,15 @@ A self-hosted music streaming server running entirely on Cloudflare's edge infra
 
 ## Compatible Clients
 
-| Client | Platform | Browsing Mode |
-|--------|----------|---------------|
-| [DSub](https://play.google.com/store/apps/details?id=github.daneren2005.dsub) | Android | Folder + ID3 |
-| [play:Sub](https://apps.apple.com/app/play-sub-music-streamer/id955329386) | iOS | ID3 |
-| [Substreamer](https://substreamerapp.com/) | Android TV / Fire TV | ID3 |
-| [Symphonium](https://symfonium.app/) | Android | ID3 |
-| [Sublime Music](https://sublimemusic.app/) | Linux/Desktop | Both |
-| [Feishin](https://github.com/jeffvli/feishin) | Desktop (Electron) | ID3 |
+| Client | Platform | Status |
+|--------|----------|--------|
+| [Sublime Music](https://sublimemusic.app/) | Linux/Desktop | Tested |
+| [Ultrasonic](https://github.com/ultrasonic/ultrasonic) | Android | Tested |
+| [Feishin](https://github.com/jeffvli/feishin) | Desktop (Electron) | Tested |
+| [DSub](https://play.google.com/store/apps/details?id=github.daneren2005.dsub) | Android | Should work |
+| [play:Sub](https://apps.apple.com/app/play-sub-music-streamer/id955329386) | iOS | Should work |
+| [Substreamer](https://substreamerapp.com/) | Android TV / Fire TV | Should work |
+| [Symphonium](https://symfonium.app/) | Android | Should work |
 
 ## Prerequisites
 
