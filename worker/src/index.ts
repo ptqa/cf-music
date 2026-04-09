@@ -57,7 +57,7 @@ export default {
 
     const format = (params.f === 'json' || params.f === 'jsonp') ? 'json' : 'xml';
 
-    // Authenticate (except ping which some clients use to test connectivity)
+    // Authenticate
     const authResult = await authenticate(env.DB, params);
     if (!authResult.ok) {
       return subsonicError(format, 40, authResult.error || 'Wrong username or password');

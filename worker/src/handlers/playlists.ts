@@ -1,5 +1,5 @@
 import { type Env, type AuthenticatedRequest } from '../types';
-import { subsonicResponse, subsonicError } from '../response';
+import { subsonicResponse, subsonicError, toISO } from '../response';
 import { formatSongChild } from './browsing';
 import * as queries from '../db/queries';
 
@@ -140,8 +140,8 @@ function formatPlaylist(p: { id: string; name: string; user_id: string; comment:
     duration: p.duration,
     public: p.is_public === 1,
     owner: username,
-    created: p.created_at,
-    changed: p.updated_at,
+    created: toISO(p.created_at),
+    changed: toISO(p.updated_at),
     comment: p.comment,
   };
 }

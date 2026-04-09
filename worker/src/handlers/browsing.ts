@@ -1,5 +1,5 @@
 import { type Env, type AuthenticatedRequest, type ArtistRow, type SongRow } from '../types';
-import { subsonicResponse, subsonicError } from '../response';
+import { subsonicResponse, subsonicError, toISO } from '../response';
 import * as queries from '../db/queries';
 
 export async function handleBrowsing(endpoint: string, ctx: AuthenticatedRequest, env: Env): Promise<Response> {
@@ -162,7 +162,7 @@ async function handleGetAlbum(ctx: AuthenticatedRequest, env: Env): Promise<Resp
       duration: album.duration,
       year: album.year,
       genre: album.genre,
-      created: album.created_at,
+      created: toISO(album.created_at),
       song: songs.map(s => formatSongChild(s)),
     },
   });
@@ -244,7 +244,7 @@ function formatAlbum(a: { id: string; name: string; artist_name: string; artist_
     duration: a.duration,
     year: a.year,
     genre: a.genre,
-    created: a.created_at,
+    created: toISO(a.created_at),
   };
 }
 
@@ -283,6 +283,8 @@ export function formatSongChild(s: SongRow) {
     type: 'music',
     isVideo: false,
     discNumber: s.disc_number,
-    created: s.created_at,
+    created: toISO(s.created_at),
   };
 }
+
+

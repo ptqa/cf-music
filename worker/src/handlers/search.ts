@@ -1,5 +1,5 @@
 import { type Env, type AuthenticatedRequest } from '../types';
-import { subsonicResponse, subsonicError } from '../response';
+import { subsonicResponse, subsonicError, toISO } from '../response';
 import { formatSongChild } from './browsing';
 import * as queries from '../db/queries';
 
@@ -41,7 +41,7 @@ export async function handleSearch(endpoint: string, ctx: AuthenticatedRequest, 
         duration: a.duration,
         year: a.year,
         genre: a.genre,
-        created: a.created_at,
+        created: toISO(a.created_at),
       })),
       song: songs.map(s => formatSongChild(s)),
     },

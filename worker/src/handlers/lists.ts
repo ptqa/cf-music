@@ -1,5 +1,5 @@
 import { type Env, type AuthenticatedRequest } from '../types';
-import { subsonicResponse, subsonicError } from '../response';
+import { subsonicResponse, subsonicError, toISO } from '../response';
 import { formatSongChild } from './browsing';
 import * as queries from '../db/queries';
 
@@ -42,7 +42,7 @@ async function handleGetAlbumList(ctx: AuthenticatedRequest, env: Env, isId3: bo
     duration: a.duration,
     year: a.year,
     genre: a.genre,
-    created: a.created_at,
+    created: toISO(a.created_at),
     ...(isId3 ? {} : { parent: a.artist_id, isDir: true, title: a.name }),
   }));
 

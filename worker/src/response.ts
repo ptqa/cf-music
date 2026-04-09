@@ -60,10 +60,11 @@ function jsonResponse(envelope: Record<string, unknown>): Response {
  * So we keep arrays as-is for maximum client compatibility.
  */
 function cleanJson(obj: unknown): unknown {
+  if (obj === null || obj === undefined) return undefined;
   if (Array.isArray(obj)) {
     return obj.map(cleanJson);
   }
-  if (obj !== null && typeof obj === 'object') {
+  if (typeof obj === 'object') {
     const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
       if (key === '_text') continue; // XML-only field
@@ -153,4 +154,11 @@ function escapeXml(str: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
+}
+
+/** Convert D1 datetime "2026-04-09 09:46:38" to ISO 8601 "2026-04-09T09:46:38Z" */
+export function toISO(dt: string): string {
+  if (!dt) return dt;
+  if (dt.includes('T')) return dt;
+  return dt.replace(' ', 'T') + 'Z';
 }

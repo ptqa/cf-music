@@ -62,27 +62,27 @@ async function handleGetCoverArt(ctx: AuthenticatedRequest, env: Env): Promise<R
   const id = ctx.params.id;
   if (!id) return subsonicError(ctx.format, 10, 'Missing required parameter: id');
 
-  let r2Key: string;
+  let r2Key: string | null = null;
 
   if (id.startsWith('al-')) {
-    // Album cover art
     const albumId = id.slice(3);
     const album = await queries.getAlbum(env.DB, albumId);
-    if (!album?.cover_art_r2_key) return new Response('Not Found', { status: 404 });
-    r2Key = album.cover_art_r2_key;
+    r2Key = album?.cover_art_r2_key ?? null;
   } else if (id.startsWith('ar-')) {
-    // Artist cover art
     const artistId = id.slice(3);
     const artist = await queries.getArtist(env.DB, artistId);
-    if (!artist?.cover_art_r2_key) return new Response('Not Found', { status: 404 });
-    r2Key = artist.cover_art_r2_key;
+    r2Key = artist?.cover_art_r2_key ?? null;
   } else {
     // Song cover art — use the album's cover
     const song = await queries.getSong(env.DB, id);
-    if (!song) return new Response('Not Found', { status: 404 });
-    const album = await queries.getAlbum(env.DB, song.album_id);
-    if (!album?.cover_art_r2_key) return new Response('Not Found', { status: 404 });
-    r2Key = album.cover_art_r2_key;
+    if (song) {
+      const album = await queries.getAlbum(env.DB, song.album_id);
+      r2Key = album?.cover_art_r2_key ?? null;
+    }
+  }
+
+  if (!r2Key) {
+    return subsonicError(ctx.format, 70, 'Cover art not found');
   }
 
   const object = await env.BUCKET.get(r2Key);

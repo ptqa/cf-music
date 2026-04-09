@@ -1,5 +1,5 @@
 import { type Env, type AuthenticatedRequest } from '../types';
-import { subsonicResponse, subsonicError } from '../response';
+import { subsonicResponse, subsonicError, toISO } from '../response';
 import { formatSongChild } from './browsing';
 import * as queries from '../db/queries';
 
@@ -73,8 +73,8 @@ async function handleGetStarred(ctx: AuthenticatedRequest, env: Env, isId3: bool
         duration: a.duration,
         year: a.year,
         genre: a.genre,
-        created: a.created_at,
-        starred: a.starred_at,
+        created: toISO(a.created_at),
+        starred: toISO(a.starred_at),
       })),
       song: songs.map(s => ({
         ...formatSongChild(s),
