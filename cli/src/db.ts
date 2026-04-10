@@ -233,6 +233,48 @@ export class D1Client {
     };
   }
 
+  async findUnknownArtistSongs(): Promise<{ id: string; title: string; r2_key: string; cover_art_r2_key: string | null; artist_id: string; album_id: string }[]> {
+    const result = await this.execute(
+      `SELECT id, title, r2_key, cover_art_r2_key, artist_id, album_id
+       FROM songs WHERE artist_name = 'Unknown Artist'`
+    );
+    return result.results as { id: string; title: string; r2_key: string; cover_art_r2_key: string | null; artist_id: string; album_id: string }[];
+  }
+
+  async deleteSong(id: string): Promise<void> {
+    // Delete references in other tables first (foreign key constraints)
+    await this.execute('DELETE FROM play_counts WHERE song_id = ?', [id]);
+    await this.execute('DELETE FROM play_history WHERE song_id = ?', [id]);
+    await this.execute('DELETE FROM playlist_songs WHERE song_id = ?', [id]);
+    await this.execute('DELETE FROM starred WHERE item_id = ? AND item_type = ?', [id, 'song']);
+    await this.execute('DELETE FROM ratings WHERE item_id = ? AND item_type = ?', [id, 'song']);
+    // Clear play queue references
+    await this.execute(
+      `UPDATE play_queue SET current_song_id = NULL WHERE current_song_id = ?`, [id]
+    );
+    await this.execute('DELETE FROM songs WHERE id = ?', [id]);
+  }
+
+  async deleteAlbumIfEmpty(albumId: string): Promise<boolean> {
+    const result = await this.execute('SELECT COUNT(*) as count FROM songs WHERE album_id = ?', [albumId]);
+    const count = result.results[0]?.count as number;
+    if (count === 0) {
+      await this.execute('DELETE FROM albums WHERE id = ?', [albumId]);
+      return true;
+    }
+    return false;
+  }
+
+  async deleteArtistIfEmpty(artistId: string): Promise<boolean> {
+    const result = await this.execute('SELECT COUNT(*) as count FROM albums WHERE artist_id = ?', [artistId]);
+    const count = result.results[0]?.count as number;
+    if (count === 0) {
+      await this.execute('DELETE FROM artists WHERE id = ?', [artistId]);
+      return true;
+    }
+    return false;
+  }
+
   async nukeAll(): Promise<void> {
     const tables = [
       'play_queue', 'play_counts', 'play_history',

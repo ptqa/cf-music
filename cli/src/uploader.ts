@@ -2,7 +2,7 @@
  * R2 upload client using S3-compatible API.
  */
 
-import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { type Config } from './config';
 
 export class R2Uploader {
@@ -67,5 +67,15 @@ export class R2Uploader {
   async uploadCoverArt(key: string, body: Buffer | Uint8Array, mimeType: string): Promise<void> {
     // Always overwrite cover art (it might have been updated)
     await this.upload(key, body, mimeType);
+  }
+
+  /**
+   * Delete an object from R2 by key.
+   */
+  async delete(key: string): Promise<void> {
+    await this.client.send(new DeleteObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+    }));
   }
 }
